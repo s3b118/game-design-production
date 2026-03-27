@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: wolf_attack
+  m_Name: fox_attack
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -21,9 +21,9 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 7776552957502355661, guid: 99a798cc1706d6a4a9acb775f245e79c, type: 3}
+      value: {fileID: -2363303502268848809, guid: acedbabe0a513144eb5a14a81112bdd1, type: 3}
     - time: 0.083333336
-      value: {fileID: 6313525587761937531, guid: 99a798cc1706d6a4a9acb775f245e79c, type: 3}
+      value: {fileID: 7789191603653211356, guid: acedbabe0a513144eb5a14a81112bdd1, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -46,8 +46,8 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 7776552957502355661, guid: 99a798cc1706d6a4a9acb775f245e79c, type: 3}
-    - {fileID: 6313525587761937531, guid: 99a798cc1706d6a4a9acb775f245e79c, type: 3}
+    - {fileID: -2363303502268848809, guid: acedbabe0a513144eb5a14a81112bdd1, type: 3}
+    - {fileID: 7789191603653211356, guid: acedbabe0a513144eb5a14a81112bdd1, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
