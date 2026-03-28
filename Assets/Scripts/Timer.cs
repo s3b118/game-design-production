@@ -1,30 +1,47 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Timer : MonoBehaviour
 {
     [Header("Timer UI text")]
     [SerializeField] private TMP_Text _timerText;
 
-    private float _elapsedTime;
+    private const float StartTime = 120f;
+    private float _remainingTime;
     private int _lastDisplayedSecond;
+    private bool _gameOverCalled;
 
     void Start()
     {
-        _elapsedTime = 0f;
+        _remainingTime = StartTime;
         _lastDisplayedSecond = -1;
+        _gameOverCalled = false;
 
         if (_timerText == null)
         {
             Debug.LogWarning("Timer text not assigned in inspector.");
         }
+
+        UpdateTimerUI(Mathf.CeilToInt(_remainingTime));
     }
 
     void Update()
     {
-        _elapsedTime += Time.deltaTime;
-        int currentSecond = Mathf.FloorToInt(_elapsedTime);
+        if (_gameOverCalled) return;
+
+        _remainingTime -= Time.deltaTime;
+
+        if (_remainingTime <= 0f)
+        {
+            _remainingTime = 0f;
+            UpdateTimerUI(0);
+
+            _gameOverCalled = true;
+            GameManager.Instance.GameOver();
+            return;
+        }
+
+        int currentSecond = Mathf.CeilToInt(_remainingTime);
 
         if (currentSecond != _lastDisplayedSecond)
         {

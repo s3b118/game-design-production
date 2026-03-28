@@ -2,20 +2,26 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    EntityHealth _playerHealth;
+    public EntityHealth Health { get; private set; }
+    public PlayerController Movement { get; private set; }
+
+    private void Awake()
+    {
+        Health = GetComponent<EntityHealth>();
+        Movement = GetComponent<PlayerController>();
+    }
 
     private void OnEnable()
     {
-        _playerHealth = GetComponent<EntityHealth>();
-        _playerHealth.OnDeath += HandleDeath;
+        Health.OnDeath += HandleDeath;
     }
 
     private void OnDisable()
     {
-        _playerHealth.OnDeath -= HandleDeath;
+        Health.OnDeath -= HandleDeath;
     }
 
-    public void HandleDeath()
+    private void HandleDeath()
     {
         GameManager.Instance.GameOver();
     }

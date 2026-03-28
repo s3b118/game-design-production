@@ -6,18 +6,18 @@ public class HealthBar : MonoBehaviour
     [SerializeField] Image _hpBarFill;
     [SerializeField] EntityHealth _playerHealth;
 
-    public void OnHealthChanged(float currentHealth, float maxHealth)
+    private void HandleHealthChanged(float currentHealth, float maxHealth)
     {
         _hpBarFill.fillAmount = currentHealth / maxHealth;
     }
 
     void OnEnable()
     {
-        _playerHealth.OnHealthChanged += OnHealthChanged;
+        _playerHealth.OnHealthChanged += HandleHealthChanged;
     }
 
     void OnDisable()
     {
-        _playerHealth.OnHealthChanged -= OnHealthChanged;
+        _playerHealth.OnHealthChanged -= HandleHealthChanged;
     }
 }
