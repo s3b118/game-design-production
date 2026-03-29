@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -5,13 +6,16 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] MainMenuManager _mainMenuManager;
     [SerializeField] InGameUIManager _inGameUIManager;
-    public static GameManager Instance {  get; private set; }
+
+    public static GameManager Instance { get; private set; }
+    public static event Action OnGameStarted;
 
     void Awake()
     {
         if (Instance != null)
         {
             Destroy(this);
+            return;
         }
         Instance = this;
 
@@ -22,6 +26,7 @@ public class GameManager : MonoBehaviour
     {
         Time.timeScale = 1f;
         _inGameUIManager.ShowInGameUI();
+        OnGameStarted?.Invoke();
     }
 
     public void ResetGame()

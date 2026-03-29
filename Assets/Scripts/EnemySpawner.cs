@@ -11,8 +11,6 @@ public class EnemySpawner : MonoBehaviour
     [SerializeField] float _spawnCooldown = 2f;
     [SerializeField] float _spawnCooldownReductionMult = 0.98f;
 
-    float _currentCooldown;
-
     [Header("Ground Tilemap")]
     [SerializeField] Tilemap _groundTiles;
 
@@ -24,29 +22,45 @@ public class EnemySpawner : MonoBehaviour
 
     [Header("Spawn Limits")]
     [SerializeField] int _maxEnemies = 120;
-    int _currentEnemyCount = 0;
 
-    List<Vector3> _spawnPositions = new();
-    HashSet<Vector3> _occupiedPositions = new();
+    private float _currentCooldown;
+    private int _currentEnemyCount;
+    private readonly List<Vector3> _spawnPositions = new();
+    private readonly HashSet<Vector3> _occupiedPositions = new();
 
-    void Start()
+    private void OnEnable()
     {
-        SetEnemySpawnPositions();
+        GameManager.OnGameStarted += OnGameStarted;
+    }
+
+    private void OnDisable()
+    {
+        GameManager.OnGameStarted -= OnGameStarted;
+    }
+
+    private void OnGameStarted()
+    {
+        CacheSpawnPositions();
         InvokeRepeating(nameof(HandleGameDifficultyIncrease), 1f, 1f);
     }
 
-    void SetEnemySpawnPositions()
+    private void Update()
     {
+        HandleEnemySpawning();
+    }
+
+    private void CacheSpawnPositions()
+    {
+        _spawnPositions.Clear();
+
         foreach (Vector3Int position in _groundTiles.cellBounds.allPositionsWithin)
         {
             if (_groundTiles.HasTile(position))
-            {
                 _spawnPositions.Add(_groundTiles.GetCellCenterWorld(position));
-            }
         }
     }
 
-    void HandleEnemySpawning()
+    private void HandleEnemySpawning()
     {
         if (_currentEnemyCount >= _maxEnemies)
             return;
@@ -57,41 +71,15 @@ public class EnemySpawner : MonoBehaviour
             return;
 
         _currentCooldown = _spawnCooldown;
-        SpawnEnemyToFreeLocation();
+        SpawnEnemy();
     }
 
-    bool TryGetRandomFreePosition(out Vector3 result)
-    {
-        List<Vector3> valid = new();
-
-        foreach (var pos in _spawnPositions)
-        {
-            if (_occupiedPositions.Contains(pos))
-                continue;
-
-            if (_player != null && Vector3.Distance(pos, _player.position) < _minPlayerDistance)
-                continue;
-
-            valid.Add(pos);
-        }
-
-        if (valid.Count == 0)
-        {
-            result = default;
-            return false;
-        }
-
-        result = valid[Random.Range(0, valid.Count)];
-        return true;
-    }
-
-    void SpawnEnemyToFreeLocation()
+    private void SpawnEnemy()
     {
         if (!TryGetRandomFreePosition(out Vector3 spawnPos))
             return;
 
-        Enemy enemyPrefab = GetRandomEnemyPrefab();
-        Enemy enemy = Instantiate(enemyPrefab, spawnPos, Quaternion.identity);
+        Enemy enemy = Instantiate(GetRandomEnemyPrefab(), spawnPos, Quaternion.identity);
 
         _occupiedPositions.Add(spawnPos);
         _currentEnemyCount++;
@@ -102,26 +90,42 @@ public class EnemySpawner : MonoBehaviour
         EntityHealth health = enemy.GetComponent<EntityHealth>();
         if (health != null)
         {
-            health.OnDeath += () =>
-            {
-                _currentEnemyCount--;
-                _occupiedPositions.Remove(spawnPos);
-            };
+            health.OnDeath += () => _currentEnemyCount--;
         }
     }
 
-    Enemy GetRandomEnemyPrefab()
+    private bool TryGetRandomFreePosition(out Vector3 result)
+    {
+        List<Vector3> validPositions = new();
+
+        foreach (Vector3 pos in _spawnPositions)
+        {
+            if (_occupiedPositions.Contains(pos))
+                continue;
+
+            if (_player != null && Vector3.Distance(pos, _player.position) < _minPlayerDistance)
+                continue;
+
+            validPositions.Add(pos);
+        }
+
+        if (validPositions.Count == 0)
+        {
+            result = default;
+            return false;
+        }
+
+        result = validPositions[Random.Range(0, validPositions.Count)];
+        return true;
+    }
+
+    private Enemy GetRandomEnemyPrefab()
     {
         return _enemyPrefabs[Random.Range(0, _enemyPrefabs.Length)];
     }
 
-    void HandleGameDifficultyIncrease()
+    private void HandleGameDifficultyIncrease()
     {
         _spawnCooldown *= _spawnCooldownReductionMult;
-    }
-
-    void Update()
-    {
-        HandleEnemySpawning();
     }
 }
